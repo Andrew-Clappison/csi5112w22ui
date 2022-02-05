@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'todo.dart';
 
 void main() {
@@ -49,6 +52,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  // late Future<Todo> futureTodos;
+  late Future<List<Todo>> futureTodos;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,14 +62,21 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: SafeArea(
-        child: ListView.builder(
-            itemCount: Todo.todos.length,
-            itemBuilder: (BuildContext context, int index) {
-              //return Text(Todo.todos[index].label);
-              //return buildTodoCard(Todo.todos[index]);
-              return buildNicerTodoCard(Todo.todos[index]);
-            }),
-      ),
+          child: FutureBuilder(
+        builder: (context, snapshot) {
+          if (snapshot.hasData == false) {
+            return const CircularProgressIndicator();
+          }
+          return ListView.builder(
+              itemCount: (snapshot.data as List<Todo>).length,
+              itemBuilder: (BuildContext context, int index) {
+                //return Text(Todo.todos[index].label);
+                //return buildTodoCard(Todo.todos[index]);
+                return buildNicerTodoCard((snapshot.data as List<Todo>)[index]);
+              });
+        },
+        future: futureTodos,
+      )),
     );
   }
 
@@ -76,27 +89,47 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-}
 
-Widget buildNicerTodoCard(Todo todo) {
-  return Card(
-    elevation: 2.0,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: <Widget>[
-          Text(
-            todo.label,
-            style: const TextStyle(
-              fontSize: 20.0,
-              fontWeight: FontWeight.w700,
-              fontFamily: 'Palatino',
+  Widget buildNicerTodoCard(Todo todo) {
+    return Card(
+      elevation: 2.0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: <Widget>[
+            Text(
+              todo.label,
+              style: const TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.w700,
+                fontFamily: 'Palatino',
+              ),
             ),
-          ),
-          Text(todo.description)
-        ],
+            Text(todo.description)
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
+
+  Future<List<Todo>> getTodos() async {
+    final response = await get(Uri.parse('https://localhost:7247/api/todo/'));
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      return Todo.fromListJson(jsonDecode(response.body));
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load todo');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    futureTodos = getTodos();
+  }
 }
