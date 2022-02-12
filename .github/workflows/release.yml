@@ -20,5 +20,16 @@ jobs:
         channel: 'stable' # or: 'beta' or 'master'
     - run: flutter --version
     - run: flutter pub get
-    - run: flutter test
+    #- run: flutter test
     - run: flutter build web
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+        aws-secret-access-key: ${{secrets.AWS_ACCESS_KEY_SECRET}}
+        aws-region: us-east-1
+        
+    - name: Sync to S3
+      run: aws s3 sync . s3://csi5112lec5 --delete --cache-control maxage=0 --acl public-read
+      working-directory: ./build/web
