@@ -106,7 +106,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 fontFamily: 'Palatino',
               ),
             ),
-            Text(todo.description)
+            Text(todo.description),
+            Text(todo.complete)
           ],
         ),
       ),
@@ -114,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<List<Todo>> getTodos() async {
-    final response = await get(Uri.parse('https://csi5112test.farahtech.net/api/todo'));
+    final response = await get(Uri.parse('https://csi5112lec6.farahtech.net/api/todo'));
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
