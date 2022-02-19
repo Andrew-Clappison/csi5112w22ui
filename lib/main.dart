@@ -107,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Text(todo.description),
-            Text(todo.complete)
+            Text(todo.complete.toString())
           ],
         ),
       ),
