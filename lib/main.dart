@@ -1,10 +1,25 @@
 import 'dart:convert';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'todo.dart';
 
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // gather analytics on how many times the app is accessed
+  await FirebaseAnalytics.instance.logEvent(
+    name: 'website_accessed',
+    parameters: {'test': 'test pass'},
+  );
+
   runApp(const MyApp());
 }
 
@@ -115,7 +130,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<List<Todo>> getTodos() async {
-    final response = await get(Uri.parse('https://csi5112lec6.farahtech.net/api/todo'));
+    final response =
+        await get(Uri.parse('https://csi5112lec6.farahtech.net/api/todo'));
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
