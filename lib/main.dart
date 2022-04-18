@@ -131,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<List<Todo>> getTodos() async {
     final response =
-        await get(Uri.parse('https://csi5112lec6.farahtech.net/api/todo'));
+        await get(Uri.parse('http://35.183.7.190/api/todo'));
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
